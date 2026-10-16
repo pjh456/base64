@@ -26,17 +26,13 @@ fn encode_impl(raw: &str) -> Result<String> {
         let mask = 0b111111;
         let indices = [18, 12, 6, 0].map(|shift| (n >> shift) & mask);
 
-        out.push(TABLE[indices[0] as usize] as char);
-        out.push(TABLE[indices[1] as usize] as char);
-        if chunk.len() > 1 {
-            out.push(TABLE[indices[2] as usize] as char);
-        } else {
-            out.push('=');
-        }
-        if chunk.len() > 2 {
-            out.push(TABLE[indices[3] as usize] as char);
-        } else {
-            out.push('=');
+        let real = chunk.len() + 1;
+        for (i, &idx) in indices.iter().enumerate() {
+            out.push(if i < real {
+                TABLE[idx as usize] as char
+            } else {
+                '='
+            });
         }
     }
 

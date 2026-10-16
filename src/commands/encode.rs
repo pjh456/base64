@@ -18,11 +18,10 @@ fn encode_impl(raw: &str) -> Result<String> {
     let mut out: String = String::new();
 
     for chunk in bytes.chunks(3) {
-        let b0 = chunk[0] as u32;
-        let b1 = *chunk.get(1).unwrap_or(&0) as u32;
-        let b2 = *chunk.get(2).unwrap_or(&0) as u32;
+        let mut buf = [0u8; 3];
+        buf[..chunk.len()].copy_from_slice(chunk);
 
-        let n = (b0 << 16) | (b1 << 8) | b2;
+        let n = u32::from_be_bytes([0, buf[0], buf[1], buf[2]]);
 
         let mask = 0b111111;
         let i0 = (n >> 18) & mask;

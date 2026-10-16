@@ -26,7 +26,7 @@ fn decode_char(ch: u8) -> Option<u32> {
 
 fn decode_impl(raw: &str) -> Result<Vec<u8>> {
     let bytes: &[u8] = raw.as_bytes();
-    if bytes.len() % 4 != 0 {
+    if !bytes.len().is_multiple_of(4) {
         bail!(format!("Invalid base64 length: {}", bytes.len()));
     }
 

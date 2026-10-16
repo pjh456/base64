@@ -15,7 +15,7 @@ fn encode_impl(raw: &str) -> Result<String> {
     const TABLE: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
     let bytes: &[u8] = raw.as_bytes();
-    let mut out: String = String::with_capacity((raw.len() + 2) / 3 * 4);
+    let mut out: String = String::with_capacity(raw.len().div_ceil(3) * 4);
 
     for chunk in bytes.chunks(3) {
         let mut buf = [0u8; 3];

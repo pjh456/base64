@@ -7,7 +7,6 @@ pub struct EncodeArgs {
 }
 
 pub fn run(args: EncodeArgs, _verbose: bool) -> Result<()> {
-    println!("Encoding String: {}", args.raw);
     println!("{}", encode_impl(&args.raw).unwrap_or("".to_string()));
     Ok(())
 }

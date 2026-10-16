@@ -8,9 +8,6 @@ use crate::commands;
 pub struct Cli {
     #[command(subcommand)]
     pub command: Commands,
-
-    #[arg(short, long, global = true)]
-    pub verbose: bool,
 }
 
 #[derive(Subcommand)]
@@ -21,7 +18,7 @@ pub enum Commands {
 
 pub fn run(cli: Cli) -> Result<()> {
     match cli.command {
-        Commands::Encode(args) => commands::encode::run(args, cli.verbose),
-        Commands::Decode(args) => commands::decode::run(args, cli.verbose),
+        Commands::Encode(args) => commands::encode::run(args),
+        Commands::Decode(args) => commands::decode::run(args),
     }
 }

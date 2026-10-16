@@ -6,7 +6,7 @@ pub struct DecodeArgs {
     pub raw: String,
 }
 
-pub fn run(args: DecodeArgs, _verbose: bool) -> Result<()> {
+pub fn run(args: DecodeArgs) -> Result<()> {
     let bytes = decode_impl(&args.raw)?;
     let text = String::from_utf8(bytes)?;
     println!("{}", text);

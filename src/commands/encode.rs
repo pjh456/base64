@@ -24,20 +24,17 @@ fn encode_impl(raw: &str) -> Result<String> {
         let n = u32::from_be_bytes([0, buf[0], buf[1], buf[2]]);
 
         let mask = 0b111111;
-        let i0 = (n >> 18) & mask;
-        let i1 = (n >> 12) & mask;
-        let i2 = (n >> 6) & mask;
-        let i3 = n & mask;
+        let indices = [18, 12, 6, 0].map(|shift| (n >> shift) & mask);
 
-        out.push(TABLE[i0 as usize] as char);
-        out.push(TABLE[i1 as usize] as char);
+        out.push(TABLE[indices[0] as usize] as char);
+        out.push(TABLE[indices[1] as usize] as char);
         if chunk.len() > 1 {
-            out.push(TABLE[i2 as usize] as char);
+            out.push(TABLE[indices[2] as usize] as char);
         } else {
             out.push('=');
         }
         if chunk.len() > 2 {
-            out.push(TABLE[i3 as usize] as char);
+            out.push(TABLE[indices[3] as usize] as char);
         } else {
             out.push('=');
         }

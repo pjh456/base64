@@ -11,9 +11,9 @@ pub fn run(args: EncodeArgs, _verbose: bool) -> Result<()> {
     Ok(())
 }
 
-const TABLE: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
 fn encode_impl(raw: &str) -> Result<String> {
+    const TABLE: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
     let bytes: &[u8] = raw.as_bytes();
     let mut out: String = String::with_capacity((raw.len() + 2) / 3 * 4);
 
@@ -24,7 +24,7 @@ fn encode_impl(raw: &str) -> Result<String> {
         let n = u32::from_be_bytes([0, buf[0], buf[1], buf[2]]);
 
         let mask = 0b111111;
-        let indices = [18, 12, 6, 0].map(|shift| (n >> shift) & mask);
+        let indices: [u32; 4] = std::array::from_fn(|i| n >> ((3 - i) * 6) & mask);
 
         let real = chunk.len() + 1;
         for (i, &idx) in indices.iter().enumerate() {

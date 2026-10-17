@@ -6,7 +6,7 @@ pub struct EncodeArgs {
     pub raw: String,
 }
 
-pub fn run(args: EncodeArgs) -> Result<()> {
+pub fn run(args: &EncodeArgs) -> Result<()> {
     let out = encode_impl(args.raw.as_bytes(), 0).unwrap_or_default();
     println!("{}", String::from_utf8_lossy(&out));
     Ok(())

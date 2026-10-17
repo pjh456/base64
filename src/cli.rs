@@ -9,7 +9,7 @@ pub struct Cli {
     #[arg(short = 'd', long = "decode")]
     pub decode: bool,
 
-    #[arg(short = 'i', long = "ignore-garbage", requires = "decode")]
+    #[arg(short = 'i', long = "ignore-garbage")]
     pub ignore_garbage: bool,
 
     #[arg(short = 'w', long = "wrap", default_value_t = 76)]
@@ -17,6 +17,9 @@ pub struct Cli {
 
     #[arg(value_name = "FILE")]
     pub files: Vec<String>,
+
+    #[arg(long, hide = true)]
+    pub debug: bool,
 
     #[command(subcommand)]
     pub command: Option<Commands>,
@@ -28,10 +31,10 @@ pub enum Commands {
     Decode(commands::decode::DecodeArgs),
 }
 
-pub fn run(cli: Cli) -> Result<()> {
-    match cli.command {
+pub fn run(cli: &Cli) -> Result<()> {
+    match &cli.command {
         Some(Commands::Encode(args)) => commands::encode::run(args),
         Some(Commands::Decode(args)) => commands::decode::run(args),
-        None => commands::run(&cli),
+        None => commands::run(cli),
     }
 }

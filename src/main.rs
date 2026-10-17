@@ -1,12 +1,20 @@
 mod cli;
 mod commands;
 
-use anyhow::Result;
 use clap::Parser;
 
 use crate::cli::Cli;
 
-fn main() -> Result<()> {
+fn main() {
     let cli = Cli::parse();
-    cli::run(cli)
+    if let Err(err) = cli::run(&cli) {
+        if cli.debug {
+            eprintln!("base64: {err}");
+        } else if let Some(io) = err.downcast_ref::<std::io::Error>() {
+            eprintln!("base64: {io}");
+        } else {
+            eprintln!("base64: invalid input");
+        }
+        std::process::exit(1);
+    }
 }

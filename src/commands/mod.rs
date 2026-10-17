@@ -7,6 +7,12 @@ pub mod decode;
 pub mod encode;
 
 pub fn run(cli: &Cli) -> Result<()> {
+    if cli.files.len() > 1 {
+        eprintln!("base64: extra operand '{}'", cli.files[1]);
+        eprintln!("Try 'base64 --help for more information.'");
+        std::process::exit(1);
+    }
+
     let input = read_input(&cli.files)?;
     let out = if cli.decode {
         decode::decode_impl(&input, cli.ignore_garbage)?

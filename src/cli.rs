@@ -4,8 +4,24 @@ use clap::{Parser, Subcommand};
 use crate::commands;
 
 #[derive(Parser)]
-#[command(name = "base64", version, about)]
+#[command(
+    name = "base64",
+    version = "0.1.0",
+    about = "Base64 encode & decode tool"
+)]
 pub struct Cli {
+    #[arg(short = 'd', long = "decode")]
+    pub decode: bool,
+
+    #[arg(short = 'i', long = "ignore-garbage", requires = "decode")]
+    pub ignore_garbage: bool,
+
+    #[arg(short = 'w', long = "wrap", default_value_t = 76)]
+    pub wrap: usize,
+
+    #[arg(value_name = "FILE")]
+    pub files: Vec<String>,
+
     #[command(subcommand)]
     pub command: Commands,
 }

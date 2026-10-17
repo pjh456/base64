@@ -13,16 +13,33 @@ pub fn run(args: &DecodeArgs) -> Result<()> {
     Ok(())
 }
 
-fn decode_char(ch: u8) -> Option<u32> {
-    match ch {
-        b'A'..=b'Z' => Some((ch - b'A') as u32),
-        b'a'..=b'z' => Some((ch - b'a' + 26) as u32),
-        b'0'..=b'9' => Some((ch - b'0' + 52) as u32),
-        b'+' => Some(62),
-        b'/' => Some(63),
-        _ => None,
+const VAL: [i8; 256] = {
+    let mut v = [-1i8; 256];
+    let mut c = b'A';
+    let mut i = 0i8;
+    while c <= b'Z' {
+        v[c as usize] = i;
+        c += 1;
+        i += 1;
     }
-}
+    let mut c = b'a';
+    let mut i = 26i8;
+    while c <= b'z' {
+        v[c as usize] = i;
+        c += 1;
+        i += 1;
+    }
+    let mut c = b'0';
+    let mut i = 52i8;
+    while c <= b'9' {
+        v[c as usize] = i;
+        c += 1;
+        i += 1;
+    }
+    v[b'+' as usize] = 62;
+    v[b'/' as usize] = 63;
+    v
+};
 
 pub fn decode_impl(raw: &[u8], ignore_garbage: bool) -> Result<Vec<u8>> {
     let mut out = Vec::with_capacity(raw.len() * 3 / 4);
@@ -42,26 +59,24 @@ pub fn decode_impl(raw: &[u8], ignore_garbage: bool) -> Result<Vec<u8>> {
             continue;
         }
 
-        match decode_char(b) {
-            Some(v) => {
-                if pads > 0 {
-                    bail!("\'{}\' after \'=\'", b)
-                }
-                bits = (bits << 6) | v;
-                nbits += 6;
-                if nbits == 24 {
-                    out.push((bits >> 16) as u8);
-                    out.push((bits >> 8) as u8);
-                    out.push(bits as u8);
-                    bits = 0;
-                    nbits = 0;
-                }
+        let v = VAL[b as usize];
+        if v < 0 {
+            if !ignore_garbage {
+                bail!("Garbage character");
             }
-            None => {
-                if !ignore_garbage {
-                    bail!("Garbage character");
-                }
-            }
+            continue;
+        }
+        if pads > 0 {
+            bail!("'{}' after '='", b)
+        }
+        bits = (bits << 6) | (v as u32);
+        nbits += 6;
+        if nbits == 24 {
+            out.push((bits >> 16) as u8);
+            out.push((bits >> 8) as u8);
+            out.push(bits as u8);
+            bits = 0;
+            nbits = 0;
         }
     }
 

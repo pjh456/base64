@@ -4,11 +4,7 @@ use clap::{Parser, Subcommand};
 use crate::commands;
 
 #[derive(Parser)]
-#[command(
-    name = "base64",
-    version = "0.1.0",
-    about = "Base64 encode & decode tool"
-)]
+#[command(name = "base64", version, about = "Base64 encode & decode tool")]
 pub struct Cli {
     #[arg(short = 'd', long = "decode")]
     pub decode: bool,

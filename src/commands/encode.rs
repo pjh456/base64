@@ -29,7 +29,7 @@ pub fn encode_impl(raw: &[u8], wrap: usize) -> Result<Vec<u8>> {
 
         let real = chunk.len() + 1;
         for (i, &idx) in indices.iter().enumerate() {
-            out.push(if i < real { TABLE[idx as usize] } else { 65 });
+            out.push(if i < real { TABLE[idx as usize] } else { b'=' });
         }
     }
 

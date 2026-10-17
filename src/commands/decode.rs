@@ -25,7 +25,7 @@ fn decode_char(ch: u8) -> Option<u32> {
 }
 
 pub fn decode_impl(raw: &[u8], ignore_garbage: bool) -> Result<Vec<u8>> {
-    let mut out = Vec::with_capacity(raw.len() / 3 * 4);
+    let mut out = Vec::with_capacity(raw.len() * 3 / 4);
     let mut bits: u32 = 0;
     let mut nbits: u32 = 0;
     let mut pads: u32 = 0;

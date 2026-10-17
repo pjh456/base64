@@ -7,7 +7,7 @@ pub struct DecodeArgs {
 }
 
 pub fn run(args: DecodeArgs) -> Result<()> {
-    let bytes = decode_impl(&args.raw)?;
+    let bytes = decode_impl(args.raw.as_bytes(), false)?;
     let text = String::from_utf8(bytes)?;
     println!("{}", text);
     Ok(())
@@ -24,8 +24,8 @@ fn decode_char(ch: u8) -> Option<u32> {
     }
 }
 
-fn decode_impl(raw: &str) -> Result<Vec<u8>> {
-    let bytes: &[u8] = raw.as_bytes();
+pub fn decode_impl(raw: &[u8], ignore_garbage: bool) -> Result<Vec<u8>> {
+    let bytes = raw;
     if !bytes.len().is_multiple_of(4) {
         bail!(format!("Invalid base64 length: {}", bytes.len()));
     }

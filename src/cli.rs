@@ -19,7 +19,7 @@ pub struct Cli {
     pub files: Vec<String>,
 
     #[command(subcommand)]
-    pub command: Commands,
+    pub command: Option<Commands>,
 }
 
 #[derive(Subcommand)]
@@ -30,7 +30,8 @@ pub enum Commands {
 
 pub fn run(cli: Cli) -> Result<()> {
     match cli.command {
-        Commands::Encode(args) => commands::encode::run(args),
-        Commands::Decode(args) => commands::decode::run(args),
+        Some(Commands::Encode(args)) => commands::encode::run(args),
+        Some(Commands::Decode(args)) => commands::decode::run(args),
+        None => commands::run(&cli),
     }
 }

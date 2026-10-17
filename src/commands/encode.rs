@@ -33,5 +33,14 @@ pub fn encode_impl(raw: &[u8], wrap: usize) -> Result<Vec<u8>> {
         }
     }
 
+    if wrap > 0 && !out.is_empty() {
+        let mut wrapped = Vec::with_capacity(out.len() + out.len() / wrap);
+        for line in out.chunks(wrap) {
+            wrapped.extend_from_slice(line);
+            wrapped.push(b'\n');
+        }
+        out = wrapped;
+    }
+
     Ok(out)
 }

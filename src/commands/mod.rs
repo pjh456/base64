@@ -9,7 +9,7 @@ pub mod encode;
 pub fn run(cli: &Cli) -> Result<()> {
     if cli.files.len() > 1 {
         eprintln!("base64: extra operand '{}'", cli.files[1]);
-        eprintln!("Try 'base64 --help for more information.'");
+        eprintln!("Try 'base64 --help' for more information.'");
         std::process::exit(1);
     }
 

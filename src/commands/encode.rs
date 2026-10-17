@@ -24,10 +24,10 @@ pub fn encode_impl(raw: &[u8], wrap: usize) -> Result<Vec<u8>> {
         let mut buf = [0u8; 3];
         buf[..chunk.len()].copy_from_slice(chunk);
 
-        let n = u32::from_be_bytes([0, buf[0], buf[1], buf[2]]);
+        let u32n = u32::from_be_bytes([0, buf[0], buf[1], buf[2]]);
 
         let mask = 0b111111;
-        let indices: [u32; 4] = std::array::from_fn(|i| n >> ((3 - i) * 6) & mask);
+        let indices: [u32; 4] = std::array::from_fn(|i| u32n >> ((3 - i) * 6) & mask);
 
         let real = chunk.len() + 1;
         for (i, &idx) in indices.iter().enumerate() {

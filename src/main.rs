@@ -11,6 +11,9 @@ fn main() {
         if cli.debug {
             eprintln!("base64: {err}");
         } else if let Some(io) = err.downcast_ref::<std::io::Error>() {
+            if io.kind() == std::io::ErrorKind::BrokenPipe {
+                std::process::exit(141);
+            }
             eprintln!("base64: {io}");
         } else {
             eprintln!("base64: invalid input");

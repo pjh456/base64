@@ -25,48 +25,63 @@ fn decode_char(ch: u8) -> Option<u32> {
 }
 
 pub fn decode_impl(raw: &[u8], ignore_garbage: bool) -> Result<Vec<u8>> {
-    let bytes = raw;
-    if !bytes.len().is_multiple_of(4) {
-        bail!(format!("Invalid base64 length: {}", bytes.len()));
+    let mut out = Vec::with_capacity(raw.len() / 3 * 4);
+    let mut bits: u32 = 0;
+    let mut nbits: u32 = 0;
+    let mut pads: u32 = 0;
+
+    for &b in raw {
+        if b == b'\n' {
+            continue;
+        }
+        if b == b'=' {
+            pads += 1;
+            if pads > 2 {
+                bail!("Too many pads")
+            }
+            continue;
+        }
+
+        match decode_char(b) {
+            Some(v) => {
+                if pads > 0 {
+                    bail!("\'{}\' after \'=\'", b)
+                }
+                bits = (bits << 6) | v;
+                nbits += 6;
+                if nbits == 24 {
+                    out.push((bits >> 16) as u8);
+                    out.push((bits >> 8) as u8);
+                    out.push(bits as u8);
+                    bits = 0;
+                    nbits = 0;
+                }
+            }
+            None => {
+                if !ignore_garbage {
+                    bail!("Garbage character");
+                }
+            }
+        }
     }
 
-    let mut out = Vec::with_capacity(raw.len() / 3 * 4);
-
-    for chunk in bytes.chunks_exact(4) {
-        let c0 = decode_char(chunk[0])
-            .ok_or_else(|| anyhow::anyhow!("Invalid character: {:?}", chunk[0] as char))?;
-        let c1 = decode_char(chunk[1])
-            .ok_or_else(|| anyhow::anyhow!("Invalid character: {:?}", chunk[1] as char))?;
-
-        let (c2, c3, real) = if chunk[2] == b'=' {
-            if chunk[3] != b'=' {
-                bail!("Invalid padding");
+    match (nbits, pads) {
+        (0, 0) => {}
+        (12, 0) | (12, 2) => {
+            if bits & 0b1111 != 0 {
+                bail!("Still some bits left");
             }
-            (0, 0, 1)
-        } else if chunk[3] == b'=' {
-            (
-                decode_char(chunk[2])
-                    .ok_or_else(|| anyhow::anyhow!("Invalid character: {:?}", chunk[2] as char))?,
-                0,
-                2,
-            )
-        } else {
-            (
-                decode_char(chunk[2])
-                    .ok_or_else(|| anyhow::anyhow!("Invalid character: {:?}", chunk[2] as char))?,
-                decode_char(chunk[3])
-                    .ok_or_else(|| anyhow::anyhow!("Invalid character: {:?}", chunk[3] as char))?,
-                3,
-            )
-        };
-
-        let n: u32 = (c0 << 18) | (c1 << 12) | (c2 << 6) | c3;
-        out.push((n >> 16) as u8);
-        if real >= 2 {
-            out.push((n >> 8) as u8);
+            out.push((bits >> 4) as u8);
         }
-        if real >= 3 {
-            out.push(n as u8);
+        (18, 0) | (18, 1) => {
+            if bits & 0b11 != 0 {
+                bail!("Still some bits left");
+            }
+            out.push((bits >> 10) as u8);
+            out.push((bits >> 2) as u8);
+        }
+        _ => {
+            bail!("Invalid variant (nbits={}, pads={})", nbits, pads);
         }
     }
 

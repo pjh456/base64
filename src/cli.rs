@@ -12,8 +12,8 @@ pub struct Cli {
     #[arg(short = 'i', long = "ignore-garbage")]
     pub ignore_garbage: bool,
 
-    #[arg(short = 'w', long = "wrap", default_value_t = 76)]
-    pub wrap: usize,
+    #[arg(short = 'w', long = "wrap", default_value = "76")]
+    pub wrap: String,
 
     #[arg(value_name = "FILE")]
     pub files: Vec<String>,
